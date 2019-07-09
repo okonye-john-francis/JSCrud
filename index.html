@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap4.css">
+</head>
+<body>
+
+  <div class="row col-lg-9 mx-auto mt-5">
+      <form class="forms-sample col-lg-12 mx-auto">
+
+          <div class="row">
+	          <div class="form-group col-lg-3">
+	            <label for="exampleSelectGender">Select Product</label>
+	              <select class="form-control" id="product">
+	                <option value="Apple">Apple</option>
+	                <option value="Orange">Orange</option>
+	                <option value="Straw Berry">Straw Berry</option>
+	              </select>
+	          </div>
+	          <div class="form-group col-lg-3">
+	            <label for="exampleSelectGender">Enter Quantity</label>
+	              <input type="number" class="form-control" id="quantity">
+	          </div>
+	          <div class="form-group col-lg-1">
+	            <button type="button" class="btn btn-success btn-sm mt-4" id="btn-add">ADD</button>
+	          </div>
+      	  </div>
+
+      	  <table id="order-table" class="table table-hover">
+      	    <thead>
+      	      <tr>
+      	      	<th>#</th>
+      	        <th>Product</th>
+      	        <th>Quantity</th>
+      	        <th>Action</th>
+      	      </tr>
+      	    </thead>
+      	    <tbody>
+      	    	
+      	    </tbody>
+      	  </table>
+
+          <div class="form-group">
+            <a href="#">
+              <button type="button" class="btn btn-primary mt-5 btn-submit" style="display: none;">
+                SEND REQUEST
+              </button>
+            </a>
+          </div>
+      </form>
+  </div>
+
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/dataTables.bootstrap4.min.js"></script>
+
+  
+<script type="text/javascript">
+
+$(function(){
+
+	var container = {};
+
+    var table =  $('#order-table').DataTable({
+	            	paging    : false,
+	            	searching : false,
+	            	info      : false,
+	             });
+
+    $('#btn-add').on('click', function(){ 
+    	var user_input = userInput();
+    	addItemToContainer(user_input);
+    	drawTable();
+
+    });
+
+    $('#order-table').on('click', '.btn-delete', function(){
+    	var index = $(this).val();
+    	if ( deleteIsConfirmed() ) {
+    		deleteObjItem(index, container);
+    		drawTable();
+
+    	}
+    	return ;
+    });
+
+    function deleteIsConfirmed() {
+
+    	if (confirm("Are you sure you want to remove this item?")) {
+    	    return true;
+    	}
+    	return false;
+    }
+
+    function userInput() {
+
+    	var product   = $('#product').val();
+    	var quantity  = $('#quantity').val();
+
+    	return {
+    		'product'  : product,
+    		'quantity' : quantity,
+    	}
+    }
+
+    function addItemToContainer(user_input) {
+    	var index = objSize(container) + 1;
+    	container[index] = user_input;
+    }
+
+    function drawTable() {
+
+    	var request_details = Object.entries(container);
+
+    	if ( request_details.length === 0 ) {
+    		$('#order-table').hide();
+    		return ;
+    	}
+
+    	$('#order-table').show();
+    	table.clear();
+
+    	for( [index, item] of request_details ){
+    		drawLine(item, index);
+    	}
+    }
+
+    function drawLine(item, index) {
+    	table.row.add([
+             '<td>'+index+'</td>',  
+             '<td>'+item.product+'</td>',
+             '<td>'+item.quantity+'</td>',
+             '<td><button type="button" class="btn btn-danger btn-sm btn-delete" value="'+index+'">Remove</button></td>'
+    	]).draw().node();
+    }
+
+    function objSize(obj) {
+      var size = 0, key;
+
+      for (key in obj) {
+          if (obj.hasOwnProperty(key)){
+            size++;
+          } 
+      }
+      return size;
+    }
+
+    function deleteObjItem(index, obj) {
+    	
+    	delete obj[index];
+    }
+
+});
+
+</script>
+
+</body>
+</html>
